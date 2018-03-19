@@ -23,16 +23,15 @@ public class DefaultTeam {
         allPoints.forEach(x-> saveAllPoints.put(saveAllPoints.size(),x));
 
         while (allPoints.size()>0) {
+            //Calcul all links beetwen all points
             ArrayList<String> links = getLinks(allPoints,edgeThreshold);
-            System.out.println("getLinks ok " + links.size());
 
             if (links.size() > 0) {
+                //Get number of links for each points
                 HashMap<Integer, Integer> linksNumber = getLinksNumber(links);
-                System.out.println("getLinksNumber ok " + linksNumber.size());
+
                 //Need to sort hashmap by value
                 Integer sommet = Collections.max(linksNumber.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
-
-                System.out.println("max ok " + sommet);
 
                 //Add dominant to result
                 result.add(saveAllPoints.get(sommet));
@@ -42,9 +41,8 @@ public class DefaultTeam {
                 for (Integer toDelete : getNeighbours(sommet, links))
                     allPoints.remove(saveAllPoints.get(toDelete));
 
-                System.out.println("Remain points " + allPoints.size());
             }else {
-                allPoints.forEach(point -> result.add(point));
+                result.addAll(allPoints);
                 allPoints.clear();
             }
 
@@ -118,12 +116,12 @@ public class DefaultTeam {
         for (int i = 0; i<input.size();i++) {
             for (int j=0; j< input.size();j++) {
                 if (i != j) {
-                    Cercle c = new Cercle(input.get(i),edgeThreshold);
+                    Point origine = input.get(i);
                     Point compare = input.get(j);
 
-                    if (c.isInside(compare)){
-                        Integer point1 = getKeysByValue(saveAllPoints,input.get(i)).iterator().next();
-                        Integer point2 = getKeysByValue(saveAllPoints,input.get(j)).iterator().next();
+                    if (origine.distance(compare.x,compare.y) < edgeThreshold) {
+                        Integer point1 = getKeysByValue(saveAllPoints,origine).iterator().next();
+                        Integer point2 = getKeysByValue(saveAllPoints,compare).iterator().next();
 
                         retour.add(point1 + " " + point2);
                     }
@@ -171,21 +169,5 @@ public class DefaultTeam {
                 .filter(entry -> Objects.equals(entry.getValue(), value))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
-    }
-
-    private class Cercle {
-        Point point;
-        int rayon;
-
-        public Cercle(Point point, int rayon) {
-            this.point = point;
-            this.rayon = rayon;
-        }
-
-        public boolean isInside(Point compare){
-            int d2 = (compare.x-this.point.x)*(compare.x-this.point.x) + (compare.y-this.point.y)*(compare.y-this.point.y);
-
-            return !(d2>this.rayon*this.rayon);
-        }
     }
 }
