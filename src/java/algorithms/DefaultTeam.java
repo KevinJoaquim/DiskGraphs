@@ -24,7 +24,7 @@ public class DefaultTeam {
 
         while (allPoints.size()>0) {
             //Calcul all links beetwen all points
-            ArrayList<String> links = getLinks(allPoints,edgeThreshold);
+            ArrayList<Lien> links = getLinks(allPoints,edgeThreshold);
 
             if (links.size() > 0) {
                 //Get number of links for each points
@@ -110,8 +110,8 @@ public class DefaultTeam {
         return points;
     }
 
-    private ArrayList<String> getLinks(ArrayList<Point> input, int edgeThreshold) {
-        ArrayList<String> retour = new ArrayList<>();
+    private ArrayList<Lien> getLinks(ArrayList<Point> input, int edgeThreshold) {
+        ArrayList<Lien> retour = new ArrayList<>();
 
         for (int i = 0; i<input.size();i++) {
             for (int j=0; j< input.size();j++) {
@@ -123,7 +123,7 @@ public class DefaultTeam {
                         Integer point1 = getKeysByValue(saveAllPoints,origine).iterator().next();
                         Integer point2 = getKeysByValue(saveAllPoints,compare).iterator().next();
 
-                        retour.add(point1 + " " + point2);
+                        retour.add(new Lien(point1,point2));
                     }
                 }
             }
@@ -132,31 +132,23 @@ public class DefaultTeam {
         return retour;
     }
 
-    private HashMap<Integer,Integer> getLinksNumber(ArrayList<String> input) {
+    private HashMap<Integer,Integer> getLinksNumber(ArrayList<Lien> input) {
         HashMap<Integer,Integer> retour = new HashMap<>();
 
         input.forEach(in -> {
-            String [] s = in.split(" ");
-            Integer nbr1 = Integer.parseInt(s[0]);
-            Integer nbr2 = Integer.parseInt(s[1]);
-
-            retour.put(nbr1,retour.getOrDefault(nbr1,0)+ 1);
-            retour.put(nbr2,retour.getOrDefault(nbr2,0)+ 1);
+            retour.put(in.idPoint1,retour.getOrDefault(in.idPoint1,0)+ 1);
+            retour.put(in.idPoint2,retour.getOrDefault(in.idPoint2,0)+ 1);
         });
 
         return retour;
     }
 
-    private ArrayList<Integer> getNeighbours(Integer position, ArrayList<String> links) {
+    private ArrayList<Integer> getNeighbours(Integer position, ArrayList<Lien> links) {
         ArrayList<Integer> retour = new ArrayList<>();
 
         links.forEach(x-> {
-            String [] s = x.split(" ");
-            Integer nbr1 = Integer.parseInt(s[0]);
-            Integer nbr2 = Integer.parseInt(s[1]);
-
-            if (nbr1.equals(position)) retour.add(nbr2);
-            if (nbr2.equals(position)) retour.add(nbr1);
+            if (x.idPoint1.equals(position)) retour.add(x.idPoint2);
+            if (x.idPoint2.equals(position)) retour.add(x.idPoint1);
 
         });
 
@@ -169,5 +161,15 @@ public class DefaultTeam {
                 .filter(entry -> Objects.equals(entry.getValue(), value))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
+    }
+
+    private class Lien {
+        Integer idPoint1;
+        Integer idPoint2;
+
+        public Lien(Integer idPoint1, Integer idPoint2) {
+            this.idPoint1 = idPoint1;
+            this.idPoint2 = idPoint2;
+        }
     }
 }
